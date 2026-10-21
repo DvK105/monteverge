@@ -6,7 +6,7 @@ export default function HomePage() {
   const initialData = getFallbackStocksData();
 
   return (
-    <main className="h-dvh w-full overflow-hidden bg-background text-foreground">
+    <main className="min-h-dvh w-full bg-background text-foreground">
       <UniverseOverview initialData={initialData} />
     </main>
   );

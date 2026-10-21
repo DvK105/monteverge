@@ -32,6 +32,9 @@ Update this file after every meaningful implementation change.
 - [x] Applied tweakcn custom theme `monte` (`cmvh181zn000104la8qe0ds0j`) via shadcn CLI with Lexend/Source Code Pro typography and rich OKLCH palette tokens in `globals.css`.
 - [x] Resolved React SSR hydration mismatch by establishing deterministic coordinate rounding (`.toFixed(1)`) on SVG trajectory paths and deterministic currency formatting (`formatINR` in `src/lib/utils/format.ts`).
 - [x] Verified full production build (`npm run build`) passing with zero TypeScript or layout errors.
+- [x] Built the inline Stochastic Execution Telemetry Panel (`src/components/dashboard/MathTraceDrawer.tsx`) beneath the Tata stock grid, with KaTeX theory/live evaluation modes, historical spread normalization, interactive OU parameter definitions, and a rerollable Euler-Maruyama shock trace.
+- [x] Applied the dark theme at the document root, retained the Lexend / Playfair Display / Source Code Pro font setup, and enabled natural page scrolling for the expanded telemetry panel.
+- [x] Verified production build after telemetry implementation (`npm run build`).
 
 ## In Progress
 

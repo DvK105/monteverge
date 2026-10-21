@@ -4,8 +4,8 @@ import React, { useState, useEffect, useTransition } from 'react';
 import { StocksApiResponse, StockSeries, TATA_TICKERS } from '@/lib/types/stock';
 import { StockCard } from './StockCard';
 import { StockDetailPanel } from './StockDetailPanel';
-import { MonteCarloTrigger } from './MonteCarloTrigger';
 import { DefenseModal } from '../defense/DefenseModal';
+import { MathTraceDrawer } from '../dashboard/MathTraceDrawer';
 import { Database, Wifi, ShieldCheck } from 'lucide-react';
 
 interface UniverseOverviewProps {
@@ -31,9 +31,9 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
           if (isMounted && json && json.stocks) {
             startTransition(() => {
               setData(json);
-              if (selectedStock) {
-                setSelectedStock(json.stocks[selectedStock.ticker] || null);
-              }
+              setSelectedStock((current) => (
+                current ? json.stocks[current.ticker] || null : json.stocks[TATA_TICKERS[0]] || null
+              ));
             });
           }
         }
@@ -59,7 +59,7 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
   const isLive = data.source === 'live';
 
   return (
-    <div className="h-full w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-3 flex flex-col gap-3 overflow-hidden">
+    <div className="min-h-dvh w-full max-w-[1440px] mx-auto px-4 sm:px-8 py-6 sm:py-8 flex flex-col gap-6 overflow-visible">
       <header className="shrink-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pb-2 border-b border-border">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
@@ -98,14 +98,14 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
         </div>
       </header>
 
-      <div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-3 overflow-hidden">
-        <section className="min-h-0 flex flex-col gap-2 overflow-hidden">
-          <div className="shrink-0 flex items-center justify-between text-[11px] text-muted-foreground px-1">
-            <span>Universe Constituents</span>
-            <span>Click a card to inspect</span>
+      <div className="grid min-h-[36rem] grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] lg:gap-8">
+        <section className="flex min-h-[36rem] flex-col gap-4">
+          <div className="flex items-center justify-between px-1 text-[11px] text-muted-foreground">
+            <span className="font-mono uppercase tracking-[0.12em]">Universe constituents</span>
+            <span>Select a name to inspect</span>
           </div>
 
-          <div className="flex-1 min-h-0 grid grid-cols-2 md:grid-cols-3 grid-rows-3 md:grid-rows-2 gap-2">
+          <div className="grid min-h-[33rem] flex-1 grid-cols-2 grid-rows-3 gap-3 sm:grid-cols-3 sm:grid-rows-2">
             {data.tickers.map((ticker) => {
               const stock = data.stocks[ticker];
               if (!stock) return null;
@@ -124,7 +124,7 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
           </div>
         </section>
 
-        <section className="min-h-0 overflow-hidden">
+        <section className="min-h-[33rem]">
           <StockDetailPanel
             stock={selectedStock}
             groupIndex={data.groupIndex}
@@ -133,7 +133,7 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
       </div>
 
       <section className="shrink-0">
-        <MonteCarloTrigger />
+        <MathTraceDrawer stock={selectedStock} groupIndex={data.groupIndex} />
       </section>
 
       <DefenseModal isOpen={defenseOpen} onClose={() => setDefenseOpen(false)} />
