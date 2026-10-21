@@ -10,7 +10,17 @@ interface CacheEntry {
 
 let memoryCache: CacheEntry | null = null;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes cache
+const CACHE_TTL_SECONDS = CACHE_TTL_MS / 1000;
+const STALE_WHILE_REVALIDATE_SECONDS = 5 * 60;
 const QUERY_BUDGET_MS = 1500; // Strict query budget limit to prevent network lag
+
+function jsonWithMarketCache(data: StocksApiResponse): NextResponse<StocksApiResponse> {
+  return NextResponse.json(data, {
+    headers: {
+      'Cache-Control': `public, max-age=${CACHE_TTL_SECONDS}, s-maxage=${CACHE_TTL_SECONDS}, stale-while-revalidate=${STALE_WHILE_REVALIDATE_SECONDS}`,
+    },
+  });
+}
 
 interface YahooChartResponse {
   chart?: {
@@ -57,7 +67,7 @@ async function fetchTickerWithBudget(ticker: string, signal: AbortSignal): Promi
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'application/json',
       },
-      next: { revalidate: 900 },
+      next: { revalidate: CACHE_TTL_SECONDS },
     });
 
     if (!response.ok) return null;
@@ -135,7 +145,7 @@ export async function GET() {
   // 1. Strict Query Cache: Return cached data immediately
   if (memoryCache && (now - memoryCache.timestamp) < CACHE_TTL_MS) {
     const elapsed = Math.round(performance.now() - startTime);
-    return NextResponse.json({
+    return jsonWithMarketCache({
       ...memoryCache.data,
       source: 'cache',
       queryBudget: {
@@ -181,7 +191,7 @@ export async function GET() {
         data: fallback,
         timestamp: now,
       };
-      return NextResponse.json(fallback);
+      return jsonWithMarketCache(fallback);
     }
 
     // Compute aligned group benchmark I_t = (1/N) sum(ln(P_i,t))
@@ -255,7 +265,7 @@ export async function GET() {
       timestamp: now,
     };
 
-    return NextResponse.json(payload);
+    return jsonWithMarketCache(payload);
   } catch {
     clearTimeout(timeoutId);
     const fallback = getFallbackStocksData();
@@ -264,6 +274,6 @@ export async function GET() {
       elapsedMs: Math.round(performance.now() - startTime),
       hitCache: false,
     };
-    return NextResponse.json(fallback);
+    return jsonWithMarketCache(fallback);
   }
 }

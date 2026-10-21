@@ -12,11 +12,12 @@ This application is an interactive quantitative finance research dashboard and s
 
 ## Core User Flow
 
-1. **Overview & Ticker Universe Monitor**: User opens the app (in dark Bloomberg-terminal theme) to inspect real-time/cached price metrics, group index weights, and active stock spread Z-scores across the six Tata equities.
-2. **Interactive Stochastic Sandbox**: User adjusts SDE parameters—Speed of Reversion ($\theta$), Target Mean ($\mu$), Daily Volatility ($\sigma$), and Initial Z-Score ($z_0$)—via live slider controls.
-3. **Off-Thread Simulation Execution**: Web Workers trigger 1,000 Monte Carlo paths; the UI instantly renders fan chart confidence bands (10th, 50th, 90th percentiles) and outputs the calculated Reversion Probability ($P(\text{reversion})$).
-4. **Historical Backtest Analysis**: User toggles historical market scenarios (e.g., Earnings Noise vs. Structural JLR Supply Chain Shocks) to observe where statistical mean-reversion holds vs. breaks down.
-5. **Science Fair Defense & Judge Q&A**: User or judge clicks into the Defense Panel to query edge-case cards (e.g., Cointegration vs. Correlation, ADF stationarity tests, transaction cost slippage, and adaptive model ensembles).
+1. **Overview & Ticker Universe Monitor**: User opens the app in a dark, Apple-like theme to inspect live/cached price metrics, group index weights, and active stock spread Z-scores across the six Tata equities.
+2. **Equity Selection**: User selects a Tata stock from the universe grid and runs the Monte Carlo equations for that ticker.
+3. **Off-Thread Simulation Results**: The action opens `/simulation/[ticker]`, where a Web Worker executes 1,000 Euler-Maruyama paths over 20 trading days; the page presents 10th/50th/90th percentile bands, empirical reversion probability, a formula/live-value toggle, and a short qualified model opinion.
+4. **Interactive Stochastic Sandbox**: User adjusts SDE parameters—Speed of Reversion ($\theta$), Target Mean ($\mu$), Daily Volatility ($\sigma$), and Initial Z-Score ($z_0$)—via live slider controls.
+5. **Historical Backtest Analysis**: User toggles historical market scenarios (e.g., Earnings Noise vs. Structural JLR Supply Chain Shocks) to observe where statistical mean-reversion holds vs. breaks down.
+6. **Science Fair Defense & Judge Q&A**: User or judge clicks into the Defense Panel to query edge-case cards (e.g., Cointegration vs. Correlation, ADF stationarity tests, transaction cost slippage, and adaptive model ensembles).
 
 ## Features
 
@@ -29,7 +30,7 @@ This application is an interactive quantitative finance research dashboard and s
 
 ### Interactive Dashboard & Charting
 
-- **Real-Time Path Fan Chart**: Visualizes 1,000 simulated stochastic trajectories with highlighted mean path and 10th/90th confidence percentile corridors using HTML5 Canvas / Chart.js.
+- **Live Execution Trace**: Reports actual worker-completed path counts, plots the worker's sampled Euler-Maruyama path as it arrives, and reveals percentile bands after aggregation completes.
 - **Dynamic Parameter Controls**: Interactive sliders for $\theta \in [0.01, 0.50]$, $\mu \in [-0.10, 0.10]$, $\sigma \in [0.005, 0.08]$, and horizon $H \in [5, 60\text{ days}]$.
 - **Signal Indicator Panel**: Displays automated trading recommendation flags (Strong Reversion Signal vs. Weak/Avoid Signal) based on threshold boundaries.
 

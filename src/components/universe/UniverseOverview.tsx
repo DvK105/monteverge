@@ -17,6 +17,7 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
   const [selectedStock, setSelectedStock] = useState<StockSeries | null>(
     initialData.stocks[TATA_TICKERS[0]] || null
   );
+  const [mobilePanel, setMobilePanel] = useState<'universe' | 'detail'>('universe');
   const [defenseOpen, setDefenseOpen] = useState(false);
   const [, startTransition] = useTransition();
 
@@ -54,31 +55,32 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
 
   const handleSelectStock = (stock: StockSeries) => {
     setSelectedStock(stock);
+    setMobilePanel('detail');
   };
 
   const isLive = data.source === 'live';
 
   return (
-    <div className="min-h-dvh w-full max-w-[1440px] mx-auto px-4 sm:px-8 py-6 sm:py-8 flex flex-col gap-6 overflow-visible">
-      <header className="shrink-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pb-2 border-b border-border">
+    <div className="mx-auto flex h-dvh w-full max-w-[1600px] flex-col gap-2 overflow-hidden px-3 py-3 sm:gap-3 sm:px-5 sm:py-4 xl:px-8 xl:py-5">
+      <header className="apple-reveal flex shrink-0 flex-wrap items-center justify-between gap-x-5 gap-y-2 border-b border-border pb-2.5 sm:pb-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-3">
-            <h1 className="text-xl font-medium tracking-tight text-foreground">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h1 className="text-2xl font-medium tracking-[-0.04em] text-foreground sm:text-3xl xl:text-4xl">
               MonteVerge
             </h1>
-            <span className="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
+            <span className="rounded-full border border-border bg-card px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground sm:px-3 sm:py-1.5 sm:text-xs">
               Tata Group
             </span>
           </div>
-          <p className="text-xs text-muted-foreground mt-0.5 truncate">
-            Continuous Ornstein-Uhlenbeck stochastic spread modeling & mean-reversion analysis.
+          <p className="mt-1 hidden max-w-2xl text-xs leading-relaxed text-muted-foreground sm:block sm:text-sm">
+            Relative-value research across six Tata Group equities.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-xs font-mono">
+        <div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:justify-end">
+          <div className="flex min-h-9 items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 font-mono text-[10px] sm:min-h-10 sm:px-3.5 sm:text-xs">
             {isLive ? (
-              <Wifi className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+              <Wifi className="apple-status-glow h-3.5 w-3.5 rounded-full text-emerald-400" />
             ) : (
               <Database className="h-3.5 w-3.5 text-muted-foreground" />
             )}
@@ -89,8 +91,9 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
           </div>
 
           <button
+            type="button"
             onClick={() => setDefenseOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-card hover:bg-muted border border-border text-xs font-mono text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="apple-interactive flex min-h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 font-mono text-[10px] text-muted-foreground hover:border-primary/40 hover:bg-muted/70 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:min-h-10 sm:gap-2 sm:px-3.5 sm:text-xs"
           >
             <ShieldCheck className="h-3.5 w-3.5 text-primary" />
             <span>Theory</span>
@@ -98,15 +101,37 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
         </div>
       </header>
 
-      <div className="grid min-h-[36rem] grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)] lg:gap-8">
-        <section className="flex min-h-[36rem] flex-col gap-4">
-          <div className="flex items-center justify-between px-1 text-[11px] text-muted-foreground">
-            <span className="font-mono uppercase tracking-[0.12em]">Universe constituents</span>
-            <span>Select a name to inspect</span>
+      <nav aria-label="Dashboard panels" className="grid shrink-0 grid-cols-2 gap-1 rounded-xl border border-border bg-card p-1 xl:hidden">
+        <button
+          type="button"
+          aria-pressed={mobilePanel === 'universe'}
+          onClick={() => setMobilePanel('universe')}
+          className={`min-h-9 rounded-lg px-3 font-mono text-[11px] transition-colors ${mobilePanel === 'universe' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          EQUITIES / 06
+        </button>
+        <button
+          type="button"
+          aria-pressed={mobilePanel === 'detail'}
+          onClick={() => setMobilePanel('detail')}
+          className={`min-h-9 rounded-lg px-3 font-mono text-[11px] transition-colors ${mobilePanel === 'detail' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          {selectedStock?.shortName ?? 'DETAILS'} / DETAIL
+        </button>
+      </nav>
+
+      <div className="apple-reveal grid min-h-0 flex-1 grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.12fr)_minmax(400px,0.88fr)] xl:gap-5" style={{ animationDelay: '80ms' }}>
+        <section className={`${mobilePanel === 'universe' ? 'flex' : 'hidden'} min-h-0 flex-col gap-2 xl:flex`}>
+          <div className="flex shrink-0 flex-wrap items-end justify-between gap-x-3 gap-y-1 px-1 text-xs text-muted-foreground xl:text-sm">
+            <div>
+              <span className="font-medium tracking-tight text-foreground">Tata universe</span>
+              <span className="ml-2 font-mono text-[10px] uppercase tracking-[0.12em] text-muted-foreground xl:text-[11px]">06 names</span>
+            </div>
+            <span className="text-[11px] xl:text-xs">Select a name to inspect</span>
           </div>
 
-          <div className="grid min-h-[33rem] flex-1 grid-cols-2 grid-rows-3 gap-3 sm:grid-cols-3 sm:grid-rows-2">
-            {data.tickers.map((ticker) => {
+          <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-6 gap-1.5 min-[380px]:grid-cols-2 min-[380px]:grid-rows-3 min-[380px]:gap-2 xl:grid-cols-3 xl:grid-rows-2 xl:gap-3">
+            {data.tickers.map((ticker, index) => {
               const stock = data.stocks[ticker];
               if (!stock) return null;
               const isSelected = selectedStock?.ticker === ticker;
@@ -118,13 +143,14 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
                   isSelected={isSelected}
                   onSelect={handleSelectStock}
                   groupIndexValue={latestGroupIndex}
+                  style={{ animationDelay: `${index * 55 + 120}ms` }}
                 />
               );
             })}
           </div>
         </section>
 
-        <section className="min-h-[33rem]">
+        <section key={selectedStock?.ticker ?? 'empty'} className={`${mobilePanel === 'detail' ? 'flex' : 'hidden'} min-h-0 xl:flex`} style={{ animationDelay: '130ms' }}>
           <StockDetailPanel
             stock={selectedStock}
             groupIndex={data.groupIndex}
@@ -132,8 +158,8 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
         </section>
       </div>
 
-      <section className="shrink-0">
-        <MathTraceDrawer stock={selectedStock} groupIndex={data.groupIndex} />
+      <section className="apple-reveal shrink-0" style={{ animationDelay: '180ms' }}>
+        <MathTraceDrawer stock={selectedStock} />
       </section>
 
       <DefenseModal isOpen={defenseOpen} onClose={() => setDefenseOpen(false)} />

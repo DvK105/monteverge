@@ -10,6 +10,7 @@ interface StockCardProps {
   isSelected: boolean;
   onSelect: (stock: StockSeries) => void;
   groupIndexValue: number;
+  style?: React.CSSProperties;
 }
 
 export const StockCard: React.FC<StockCardProps> = ({
@@ -17,6 +18,7 @@ export const StockCard: React.FC<StockCardProps> = ({
   isSelected,
   onSelect,
   groupIndexValue,
+  style,
 }) => {
   const isPositive = stock.change24h >= 0;
   const spread = stock.logSpread ?? (
@@ -25,45 +27,48 @@ export const StockCard: React.FC<StockCardProps> = ({
   const zScore = stock.zScore ?? (spread / 0.025);
 
   return (
-    <div
+    <button
+      type="button"
+      aria-pressed={isSelected}
       onClick={() => onSelect(stock)}
-      className={`group h-full min-h-0 p-3 rounded-xl bg-card border transition-all duration-200 cursor-pointer select-none flex flex-col justify-between overflow-hidden ${
+      style={style}
+      className={`stock-card apple-reveal apple-interactive group flex h-full min-h-0 w-full flex-col justify-between overflow-hidden rounded-xl border bg-card p-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary xl:rounded-2xl xl:p-4 ${
         isSelected
-          ? 'border-primary ring-1 ring-primary'
-          : 'border-border hover:border-muted-foreground/50'
+          ? 'border-primary/70 bg-primary/[0.035] ring-1 ring-primary/40 shadow-lg shadow-primary/5'
+          : 'border-border hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-lg hover:shadow-black/20'
       }`}
     >
-      <div className="min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="font-mono text-[10px] font-semibold text-primary px-1.5 py-0.5 rounded bg-muted/60 border border-border shrink-0">
+      <div className="stock-card__identity min-w-0">
+        <div className="flex min-w-0 items-center justify-between gap-1">
+          <div className="flex min-w-0 items-center gap-1.5">
+            <span className="shrink-0 rounded-md border border-border bg-muted/50 px-1.5 py-0.5 font-mono text-[10px] font-medium text-primary xl:px-2 xl:py-1 xl:text-[11px]">
               {stock.shortName}
             </span>
-            <span className="text-[10px] font-mono text-muted-foreground truncate">
+            <span className="truncate font-mono text-[10px] text-muted-foreground xl:text-[11px]">
               {stock.ticker}
             </span>
           </div>
 
-          <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 rounded-full bg-muted/40 shrink-0">
+          <span className="stock-card__sector hidden max-w-24 shrink-0 truncate rounded-full bg-muted/40 px-2 py-1 text-[10px] text-muted-foreground xl:inline-flex xl:max-w-28 xl:text-[11px]">
             {stock.sector}
           </span>
         </div>
 
-        <h3 className="text-xs font-medium text-foreground mt-1 truncate">
+        <h3 className="stock-card__name mt-1 truncate text-xs font-medium tracking-tight text-foreground xl:mt-2 xl:text-sm">
           {stock.name}
         </h3>
       </div>
 
-      <div className="my-1.5 flex items-baseline justify-between gap-2">
+      <div className="stock-card__middle my-1 flex flex-wrap items-baseline justify-between gap-x-1 gap-y-1 xl:my-2 xl:gap-x-2">
         <div
           suppressHydrationWarning
-          className="text-lg font-mono font-medium tracking-tight text-foreground"
+          className="stock-card__price whitespace-nowrap font-mono text-base font-medium tabular-nums tracking-tight text-foreground xl:text-xl"
         >
           ₹{formatINR(stock.currentPrice)}
         </div>
 
         <div
-          className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-mono font-medium ${
+          className={`stock-card__change inline-flex items-center gap-1 rounded-full px-1.5 py-1 font-mono text-[10px] font-medium xl:gap-1.5 xl:px-2 xl:py-1.5 xl:text-[11px] ${
             isPositive
               ? 'bg-emerald-500/10 text-emerald-400'
               : 'bg-rose-500/10 text-rose-400'
@@ -81,19 +86,19 @@ export const StockCard: React.FC<StockCardProps> = ({
         </div>
       </div>
 
-      <div className="pt-2 border-t border-border flex items-center justify-between text-[11px] font-mono">
+      <div className="stock-card__spread flex flex-wrap items-center justify-between gap-x-1 gap-y-0.5 border-t border-border pt-1.5 font-mono text-[10px] xl:gap-x-2 xl:pt-2 xl:text-[11px]">
         <div className="text-muted-foreground">
-          <span>Spread z: </span>
+          <span className="stock-card__spread-label">Spread z:</span>{' '}
           <span className="text-foreground font-medium">
             {zScore > 0 ? '+' : ''}{zScore.toFixed(2)}σ
           </span>
         </div>
 
-        <div className="flex items-center gap-1 text-muted-foreground group-hover:text-primary transition-colors text-[10px]">
+        <div className="stock-card__detail flex items-center gap-1 text-[10px] text-muted-foreground transition-colors group-hover:text-primary xl:gap-1.5 xl:text-[11px]">
           <span>{isSelected ? 'Selected' : 'Details'}</span>
           <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
         </div>
       </div>
-    </div>
+    </button>
   );
 };

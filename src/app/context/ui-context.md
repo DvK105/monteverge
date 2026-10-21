@@ -2,7 +2,7 @@
 
 ## Theme
 
-Dark-only mode. No light mode. The design language is a high-end Bloomberg/Hedge-Fund technical terminal — near-black layered backgrounds, glassmorphism card surfaces, and vivid electric cyan and signal green accent colors for interactive mathematical controls and quantitative indicators.
+Dark-only mode. The app uses the existing `src/app/index.css` token system without editing that file. The design direction is Apple-like: generous spacing, crisp Lexend typography, quiet dark surfaces, restrained violet accents, soft borders, and small purposeful transitions. `design-system.css` maps the existing tokens to the app's legacy semantic aliases and defines motion utilities.
 
 ## Colors
 
@@ -10,23 +10,24 @@ Define your color tokens as CSS custom properties. All components must use these
 
 | Role | CSS Variable | Value |
 | --- | --- | --- |
-| Page background | `--bg-base` | `#07090E` |
-| Surface | `--bg-surface` | `#0D111A` |
-| Surface elevated | `--bg-elevated` | `#131824` |
-| Primary text | `--text-primary` | `#F1F5F9` |
-| Muted text | `--text-muted` | `#94A3B8` |
-| Primary accent | `--accent-primary` | `#00F0FF` |
-| Secondary accent | `--accent-secondary` | `#7000FF` |
-| Border | `--border-default` | `#1E293B` |
-| Error | `--state-error` | `#FF1744` |
-| Success | `--state-success` | `#00E676` |
+| Page background | `--bg-base` → `--background` | `oklch(0 0 0)` |
+| Surface | `--bg-surface` → `--card` | `oklch(0.1591 0 0)` |
+| Surface elevated | `--bg-elevated` → `--muted` | `oklch(0.2686 0 0)` |
+| Primary text | `--text-primary` → `--foreground` | `oklch(1 0 0)` |
+| Muted text | `--text-muted` → `--muted-foreground` | `oklch(0.7155 0 0)` |
+| Primary accent | `--accent-primary` → `--primary` | `oklch(0.5676 0.2021 283.0838)` |
+| Secondary accent | `--accent-secondary` → `--chart-2` | `oklch(0.5261 0.1705 314.6534)` |
+| Border | `--border-default` → `--border` | `oklch(0.3012 0 0)` |
+| Error | `--state-error` → `--destructive` | `oklch(0.6368 0.2078 25.3313)` |
+| Success | `--state-success` → `--sidebar-accent` | `oklch(0.6746 0.1414 117.4260)` |
 
 ## Typography
 
 | Role | Font | Variable |
 | --- | --- | --- |
-| UI text | Geist Sans / Inter | `--font-sans` |
-| Code/mono | Geist Mono / JetBrains Mono | `--font-mono` |
+| UI text | Lexend | `--font-sans` |
+| Editorial accent | Playfair Display | `--font-serif` |
+| Code/mono | Source Code Pro | `--font-mono` |
 
 ## Border Radius
 
@@ -50,3 +51,18 @@ shadcn/ui built on top of Tailwind CSS v4. Components live in `components/ui/`. 
 ## Icons
 
 Lucide React. Stroke-based icons only (`strokeWidth={1.5}` or `2`). Sizes: `h-4 w-4` for inline text, `h-5 w-5` for buttons and card headers.
+
+## Responsive Behavior
+
+- Keep the overview and simulation result routes inside the dynamic viewport with no document-level scrolling. Use compact, equal-height stock rows on narrow screens and let charts occupy the remaining flexible space; preserve all data through responsive panel toggles and the outcome/trace switch.
+- Keep the overview fluid with a capped desktop width and small-screen gutters; avoid fixed viewport widths that cause horizontal scrolling.
+- Keep interface text comfortably readable: use at least 11px for supporting labels, 14px for body copy, and larger sizes for primary figures. Increase padding and type at tablet and desktop widths without forcing small-screen overflow.
+- Stack the equity grid and selected-stock detail panel through tablet widths. Use one stock column below 380px, two columns on phones and standard desktop layouts, and three columns only at wide desktop widths where cards retain room for prices and names.
+- Let telemetry controls and numerical readouts stack on phones, then use two-column equation cards at wide tablet and desktop widths. Break long formulas across lines so they stay visible without adding horizontal page overflow.
+- Keep dialogs within the dynamic viewport height and scroll their content internally so mobile browser chrome does not cover actions.
+
+## Motion
+
+- Use brief fade-and-rise entrances for page sections, stock cards, result panels, and modal content; stagger repeated items slightly.
+- Animate only worker-computed path values as progress snapshots arrive; reveal percentile bands once the worker completes aggregation. Never animate predicted or fabricated market values.
+- Honor `prefers-reduced-motion` globally. Keep hover and focus feedback subtle and preserve clear keyboard focus rings.

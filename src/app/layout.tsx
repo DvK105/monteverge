@@ -2,7 +2,8 @@
 // https://tailwindcss.com/docs/font-family
 import type { Metadata } from "next";
 import { Lexend, Playfair_Display, Source_Code_Pro } from "next/font/google";
-import "./globals.css";
+import "./index.css";
+import "./design-system.css";
 import "katex/dist/katex.min.css";
 
 const fontSans = Lexend({

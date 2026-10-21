@@ -5,11 +5,11 @@ Update this file after every meaningful implementation change.
 ## Current Phase
 
 - Phase 2: Stock Universe Overview & Apple/TE Aesthetic Polish (Completed)
-- Phase 3: Web Worker Parallel SDE Solver & Canvas Visualization (Next Up)
+- Phase 3: Web Worker Monte Carlo Results Experience (Core Flow Completed)
 
 ## Current Goal
 
-- Implement dedicated Web Worker for off-thread parallelized 1,000-path Monte Carlo simulations (<50ms execution target) and full Chart.js / Canvas fan-chart corridor visualizer.
+- Add interactive parameter controls and benchmark the dedicated 1,000-path worker against the <50ms execution target.
 
 ## Completed
 
@@ -29,22 +29,35 @@ Update this file after every meaningful implementation change.
   - **Interactive Detail View Panel (`StockDetailPanel.tsx`)**: Vector SVG trajectory preview comparing $\ln(P_{i,t})$ vs synthesized benchmark $I_t$, active SDE speed ($\theta$) and half-life ($\tau$), historical volatility ($\sigma$), trading volume, cointegration status badge (`Engle-Granger I(0) Stationary • p = 0.004 < 0.01`), and 52-week price range slider.
   - **Tactile Monte Carlo Trigger Button (`MonteCarloTrigger.tsx`)**: Industrial Apple/TE hybrid button `[ ⚡ RUN MONTE CARLO EQUATIONS ]` with matte slate surface, glowing LED tab, and clean modal placeholder ("Monte Carlo Stochastic Engine initialization queued — execution module ready for next phase").
 - [x] Pure mathematical engine foundation implemented (`src/lib/quant/stochasticEngine.ts`).
-- [x] Applied tweakcn custom theme `monte` (`cmvh181zn000104la8qe0ds0j`) via shadcn CLI with Lexend/Source Code Pro typography and rich OKLCH palette tokens in `globals.css`.
+- [x] Established the Lexend / Playfair Display / Source Code Pro typography and initial dark OKLCH token system.
 - [x] Resolved React SSR hydration mismatch by establishing deterministic coordinate rounding (`.toFixed(1)`) on SVG trajectory paths and deterministic currency formatting (`formatINR` in `src/lib/utils/format.ts`).
 - [x] Verified full production build (`npm run build`) passing with zero TypeScript or layout errors.
-- [x] Built the inline Stochastic Execution Telemetry Panel (`src/components/dashboard/MathTraceDrawer.tsx`) beneath the Tata stock grid, with KaTeX theory/live evaluation modes, historical spread normalization, interactive OU parameter definitions, and a rerollable Euler-Maruyama shock trace.
+- [x] Added a stock-aware Monte Carlo launch control beneath the equity grid; it routes to a dedicated results page for the selected Tata ticker.
+- [x] Implemented `src/lib/simulators/monteCarlo.ts` and its Web Worker: 1,000 seeded Euler-Maruyama paths over 20 trading days, empirical reversion probability, percentile bands, and a sampled first-step calculation.
+- [x] Built `/simulation/[ticker]` results pages with historical spread/OU calibration, a responsive percentile fan chart, theory/live equation toggle, interactive parameter definitions, and a short qualified model opinion.
 - [x] Applied the dark theme at the document root, retained the Lexend / Playfair Display / Source Code Pro font setup, and enabled natural page scrolling for the expanded telemetry panel.
 - [x] Verified production build after telemetry implementation (`npm run build`).
+- [x] Fixed the trace freshness effect to keep a stable dependency list and schedule recalculation when the selected stock snapshot changes, without dispatching state updates synchronously inside the effect.
+- [x] Made the stock overview, stock cards, selected-stock chart, telemetry controls/readouts, and theory dialog adapt to phone, tablet, and desktop widths.
+- [x] Enabled 15-minute browser/shared-cache policies with a 5-minute stale-while-revalidate window for `/api/stocks`, aligned with the existing Next fetch and in-process cache lifetimes.
+- [x] Loaded the existing `src/app/index.css` unchanged and aligned the app surfaces with its dark violet tokens via `design-system.css`.
+- [x] Added restrained page/card/modal entrances, chart-path reveals, equation-toggle fades, and global reduced-motion handling; kept simulation values tied to actual worker results.
+- [x] Increased dashboard and simulation typography, control sizes, and card spacing; adjusted breakpoints so stock cards, telemetry, metrics, and dialogs stay legible across phone, tablet, and wide desktop layouts.
+- [x] Verified production build after responsive UI sizing (`npm run build`).
+- [x] Moved dynamic simulation `params` access into a Suspense-wrapped server component and added a responsive loading shell for instant navigation; verified the production build.
+- [x] Verified the index stylesheet integration and motion polish with `npm run build` and `npx tsc --noEmit`.
+- [x] Fitted the dashboard, stock universe, simulation results, and simulation loading shell to the dynamic viewport; aligned stock-card rows across breakpoints, added a compact single-column card treatment below 380px, and removed page-level scrolling. Verified with `npm run build`.
+- [x] Added worker-reported Monte Carlo progress and streams the sampled Euler–Maruyama path one computed day at a time; the trace shows the actual shock, drift, noise, spread, and implied price, then reveals percentile bands after aggregation. Verified with `npm run build`.
 
 ## In Progress
 
-- [ ] Constructing dedicated Web Worker script for multi-threaded 1,000-path Monte Carlo simulations to keep main render thread at steady 60 FPS.
+- No active implementation item.
 
 ## Next Up
 
-- [ ] Implement `src/lib/simulators/monteCarloWorker.ts` and React hook `useMonteCarloSimulation`.
 - [ ] Connect interactive slider controls to the Web Worker for live simulation execution under the 50ms latency budget.
-- [ ] Implement unit tests verifying mathematical invariants (zero-volatility stability, symmetrical boundaries, weak-order convergence).
+- [ ] Benchmark worker execution time and verify numerical behavior across edge cases.
+- [ ] Add unit tests for numerical invariants (zero-volatility stability, symmetric reversion boundaries, weak-order convergence).
 
 ## Resolved Questions
 
