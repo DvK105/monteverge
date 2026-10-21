@@ -27,45 +27,43 @@ export const StockCard: React.FC<StockCardProps> = ({
   return (
     <div
       onClick={() => onSelect(stock)}
-      className={`group p-5 rounded-xl bg-card border transition-all duration-200 cursor-pointer select-none flex flex-col justify-between ${
+      className={`group h-full min-h-0 p-3 rounded-xl bg-card border transition-all duration-200 cursor-pointer select-none flex flex-col justify-between overflow-hidden ${
         isSelected
           ? 'border-primary ring-1 ring-primary'
           : 'border-border hover:border-muted-foreground/50'
       }`}
     >
-      {/* Top Header: Symbol & Sector */}
-      <div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs font-semibold text-primary px-2 py-0.5 rounded bg-muted/60 border border-border">
+      <div className="min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="font-mono text-[10px] font-semibold text-primary px-1.5 py-0.5 rounded bg-muted/60 border border-border shrink-0">
               {stock.shortName}
             </span>
-            <span className="text-[11px] font-mono text-muted-foreground">
+            <span className="text-[10px] font-mono text-muted-foreground truncate">
               {stock.ticker}
             </span>
           </div>
 
-          <span className="text-[11px] text-muted-foreground px-2 py-0.5 rounded-full bg-muted/40">
+          <span className="text-[10px] text-muted-foreground px-1.5 py-0.5 rounded-full bg-muted/40 shrink-0">
             {stock.sector}
           </span>
         </div>
 
-        <h3 className="text-sm font-medium text-foreground mt-2 truncate">
+        <h3 className="text-xs font-medium text-foreground mt-1 truncate">
           {stock.name}
         </h3>
       </div>
 
-      {/* Main Quote */}
-      <div className="my-5 flex items-baseline justify-between gap-3">
+      <div className="my-1.5 flex items-baseline justify-between gap-2">
         <div
           suppressHydrationWarning
-          className="text-2xl font-mono font-medium tracking-tight text-foreground"
+          className="text-lg font-mono font-medium tracking-tight text-foreground"
         >
           ₹{formatINR(stock.currentPrice)}
         </div>
 
         <div
-          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-medium ${
+          className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-mono font-medium ${
             isPositive
               ? 'bg-emerald-500/10 text-emerald-400'
               : 'bg-rose-500/10 text-rose-400'
@@ -83,8 +81,7 @@ export const StockCard: React.FC<StockCardProps> = ({
         </div>
       </div>
 
-      {/* Footer Metrics: Z-Score & Inspect */}
-      <div className="pt-3 border-t border-border flex items-center justify-between text-xs font-mono">
+      <div className="pt-2 border-t border-border flex items-center justify-between text-[11px] font-mono">
         <div className="text-muted-foreground">
           <span>Spread z: </span>
           <span className="text-foreground font-medium">
@@ -92,9 +89,9 @@ export const StockCard: React.FC<StockCardProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-1 text-muted-foreground group-hover:text-primary transition-colors text-[11px]">
+        <div className="flex items-center gap-1 text-muted-foreground group-hover:text-primary transition-colors text-[10px]">
           <span>{isSelected ? 'Selected' : 'Details'}</span>
-          <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
         </div>
       </div>
     </div>

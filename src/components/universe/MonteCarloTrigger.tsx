@@ -7,20 +7,19 @@ export const MonteCarloTrigger: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <div className="flex flex-col items-center justify-center select-none py-4">
-      {/* Simple, Clean Action Button */}
-      <button
-        onClick={() => setModalOpen(true)}
-        className="px-6 py-3.5 rounded-xl bg-card hover:bg-muted border border-border hover:border-primary/50 text-foreground transition-all cursor-pointer flex items-center gap-3 text-sm font-medium shadow-sm"
-      >
-        <span className="w-2 h-2 rounded-full bg-primary" />
-        <Play className="h-4 w-4 text-primary fill-primary" />
-        <span>Run 1,000-Path Monte Carlo Simulation</span>
-      </button>
-
-      <p className="mt-2 text-xs text-muted-foreground">
+    <div className="flex items-center justify-between gap-3 select-none py-1 px-1">
+      <p className="text-[11px] text-muted-foreground truncate">
         Euler-Maruyama continuous SDE solver • Horizon = 20 Days
       </p>
+
+      <button
+        onClick={() => setModalOpen(true)}
+        className="shrink-0 px-4 py-2 rounded-lg bg-card hover:bg-muted border border-border hover:border-primary/50 text-foreground transition-all cursor-pointer flex items-center gap-2 text-xs font-medium shadow-sm"
+      >
+        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+        <Play className="h-3.5 w-3.5 text-primary fill-primary" />
+        <span>Run 1,000-Path Monte Carlo</span>
+      </button>
 
       {/* Clean Dark Modal */}
       {modalOpen && (

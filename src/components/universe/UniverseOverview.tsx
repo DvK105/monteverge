@@ -53,35 +53,29 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
     : 7.215;
 
   const handleSelectStock = (stock: StockSeries) => {
-    if (selectedStock?.ticker === stock.ticker) {
-      setSelectedStock(null);
-    } else {
-      setSelectedStock(stock);
-    }
+    setSelectedStock(stock);
   };
 
   const isLive = data.source === 'live';
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
-      {/* 1. Simple, Clean Dark Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border">
-        <div>
+    <div className="h-full w-full max-w-[1400px] mx-auto px-4 sm:px-6 py-3 flex flex-col gap-3 overflow-hidden">
+      <header className="shrink-0 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 pb-2 border-b border-border">
+        <div className="min-w-0">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-medium tracking-tight text-foreground">
+            <h1 className="text-xl font-medium tracking-tight text-foreground">
               MonteVerge
             </h1>
             <span className="text-[11px] font-mono uppercase px-2 py-0.5 rounded bg-muted text-muted-foreground border border-border">
               Tata Group
             </span>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-xs text-muted-foreground mt-0.5 truncate">
             Continuous Ornstein-Uhlenbeck stochastic spread modeling & mean-reversion analysis.
           </p>
         </div>
 
-        {/* Status Pill & Defense Action */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border text-xs font-mono">
             {isLive ? (
               <Wifi className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
@@ -104,49 +98,44 @@ export const UniverseOverview: React.FC<UniverseOverviewProps> = ({ initialData 
         </div>
       </header>
 
-      {/* 2. Stock Universe Cards Grid */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
-          <span>Universe Constituents</span>
-          <span>Click a card to inspect</span>
-        </div>
+      <div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-3 overflow-hidden">
+        <section className="min-h-0 flex flex-col gap-2 overflow-hidden">
+          <div className="shrink-0 flex items-center justify-between text-[11px] text-muted-foreground px-1">
+            <span>Universe Constituents</span>
+            <span>Click a card to inspect</span>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data.tickers.map((ticker) => {
-            const stock = data.stocks[ticker];
-            if (!stock) return null;
-            const isSelected = selectedStock?.ticker === ticker;
+          <div className="flex-1 min-h-0 grid grid-cols-2 md:grid-cols-3 grid-rows-3 md:grid-rows-2 gap-2">
+            {data.tickers.map((ticker) => {
+              const stock = data.stocks[ticker];
+              if (!stock) return null;
+              const isSelected = selectedStock?.ticker === ticker;
 
-            return (
-              <StockCard
-                key={ticker}
-                stock={stock}
-                isSelected={isSelected}
-                onSelect={handleSelectStock}
-                groupIndexValue={latestGroupIndex}
-              />
-            );
-          })}
-        </div>
-      </section>
+              return (
+                <StockCard
+                  key={ticker}
+                  stock={stock}
+                  isSelected={isSelected}
+                  onSelect={handleSelectStock}
+                  groupIndexValue={latestGroupIndex}
+                />
+              );
+            })}
+          </div>
+        </section>
 
-      {/* 3. Detail View Panel (when selected) */}
-      {selectedStock && (
-        <section className="pt-2">
+        <section className="min-h-0 overflow-hidden">
           <StockDetailPanel
             stock={selectedStock}
             groupIndex={data.groupIndex}
-            onClose={() => setSelectedStock(null)}
           />
         </section>
-      )}
+      </div>
 
-      {/* 4. Simple Monte Carlo Simulation Trigger */}
-      <section className="pt-4">
+      <section className="shrink-0">
         <MonteCarloTrigger />
       </section>
 
-      {/* 5. Defense / Math Derivations Modal */}
       <DefenseModal isOpen={defenseOpen} onClose={() => setDefenseOpen(false)} />
     </div>
   );
