@@ -87,12 +87,12 @@ export default function SimulationPage() {
     <main className="market-shell simulation-overview-shell">
       <header className="market-topbar">
         <Link href="/market" className="market-brand">Monteverge<span>.</span></Link>
-        <Link className="simulation-back" href="/market">&#8592; Market</Link>
+        <Link className="simulation-back" href="/briefing/log-spread">&#8592; How we compare</Link>
       </header>
 
       <section className="simulation-overview-heading">
-        <div><h1>1-year log spread vs NIFTY 50<span>.</span></h1></div>
-        <div className="simulation-status"><i className={`status-light status-light--${status}`} />{status === "loading" ? "Loading data" : status === "running" ? `Calculating ${percent}%` : status === "complete" ? "All stocks computed" : "Data unavailable"}</div>
+        <div><h1>Stock gaps vs NIFTY 50<span>.</span></h1></div>
+        <div className="simulation-status"><i className={`status-light status-light--${status}`} />{status === "loading" ? "Loading prices" : status === "running" ? `Calculating ${percent}%` : status === "complete" ? "Done" : "Data unavailable"}</div>
       </section>
 
       {error ? <section className="simulation-error" role="alert"><strong>Could not load stock data</strong><span>{error}</span><button type="button" className="simulation-retry" onClick={() => void run()}>Retry</button></section> : (
@@ -104,7 +104,7 @@ export default function SimulationPage() {
               <Link key={stock.symbol} href={`/simulation/${encodeURIComponent(stock.symbol)}`} className="simulation-overview-link" aria-label={`Open ${stock.name} formula trace`}>
                 <article className="simulation-overview-card">
                   <header className="simulation-overview-card__header"><div><h2>{stock.name}</h2><span>{stock.symbol}</span></div><span className="simulation-overview-card__index">0{index + 1}</span></header>
-                  <div className="simulation-overview-card__metrics"><span>Latest <b>{result?.points.length ? fixed(result.latest) : "—"}</b></span><span>Mean <b>{result?.points.length ? fixed(result.mean) : "—"}</b></span><span>{result?.points.length ?? 0}/{stock.points.length} days</span></div>
+                  <div className="simulation-overview-card__metrics"><span>Latest gap <b>{result?.points.length ? fixed(result.latest) : "—"}</b></span><span>Average gap <b>{result?.points.length ? fixed(result.mean) : "—"}</b></span><span>{result?.points.length ?? 0} of {stock.points.length} days</span></div>
                   <SpreadChart series={result} compact />
                   <div className="simulation-overview-card__action" aria-label="Latest calculated log spread">
                     ln({result?.points.at(-1)?.price.toFixed(2) ?? "stock close"}) - ln({result?.points.at(-1)?.benchmark.toFixed(2) ?? "NIFTY close"}) = {result?.points.length ? fixed(result.latest) : "—"}
@@ -114,7 +114,7 @@ export default function SimulationPage() {
             );
           })}
         </section>
-        {payload?.stocks[0] && <div className="simulation-overview-continue"><Link className="landing__button simulation-continue__button" href="/simulation/continue">Continue Simulation <span aria-hidden="true">&#8594;</span></Link></div>}
+        {payload?.stocks[0] && <div className="simulation-overview-continue"><Link className="landing__button simulation-continue__button" href="/briefing/z-score">Next: unusual gaps <span aria-hidden="true">&#8594;</span></Link></div>}
         </>
       )}
     </main>

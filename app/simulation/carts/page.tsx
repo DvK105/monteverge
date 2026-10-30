@@ -44,7 +44,10 @@ function calculateReversion(stock: Stock): ReversionSeries {
   const y = zScores.slice(1);
   const denom = x.reduce((sum, v) => sum + v * v, 0);
   const rawPhi = denom ? x.reduce((sum, v, i) => sum + v * y[i]!, 0) / denom : 0;
-  const phi = Math.max(-0.999, Math.min(0.999, rawPhi));
+  // Report the estimated coefficient as-is. Clamping it would manufacture
+  // reversion that the sample does not contain; the UI flags non-stationarity
+  // instead (half-life is only defined for 0 < phi < 1).
+  const phi = rawPhi;
 
   // Half-life t_1/2 = -ln(2) / ln(phi) in trading days
   let halfLife = NaN;
@@ -63,13 +66,13 @@ function calculateReversion(stock: Stock): ReversionSeries {
   const latestZ = zScores.at(-1) ?? 0;
 
   let status: "strong" | "moderate" | "weak" = "weak";
-  let verdict = "Weak Reversion / High Persistence";
+  let verdict = "Gap usually stays open";
   if (phi > 0 && phi <= 0.94 && halfLife < 45) {
     status = "strong";
-    verdict = "Confirmed Mean-Reverting: Fast Decay";
+    verdict = "Gap often shrinks quickly";
   } else if (phi > 0 && phi < 0.985) {
     status = "moderate";
-    verdict = "Moderate Mean-Reverting: Gradual Drift";
+    verdict = "Gap sometimes shrinks";
   }
 
   return {
@@ -161,39 +164,28 @@ export default function HistoricalMeanReversionPage() {
   const inspectedSpread = inspectedIdx !== null && activeSeries ? activeSeries.spreads[inspectedIdx] : null;
 
   return (
-    <main className="market-shell simulation-stage-shell">
+    <main className="market-shell simulation-stage-shell simulation-stage-fit">
       <header className="market-topbar">
         <Link href="/market" className="market-brand">
           Monteverge<span>.</span>
         </Link>
-        <Link className="simulation-back" href="/simulation/continue">
-          &larr; Stage 02: Spread z-scores
+        <Link className="simulation-back" href="/briefing/reversion">
+          &larr; Do gaps shrink?
         </Link>
       </header>
 
       {/* Header and Step Indicator */}
-      <section className="simulation-stage-header">
-        <div className="simulation-stage-title-wrap">
-          <div className="simulation-stage-step-tag">
-            <span>Stage 03 / Statistical Verification</span>
-            <span style={{ color: "var(--market-line)" }}>&bull;</span>
-            <span>Historical Mean Reversion Check</span>
-          </div>
-          <h1>Historical Mean Reversion<span>.</span></h1>
-          <p className="simulation-stage-subtitle">
-            Rigorous empirical check on historical spread time-series. We test whether log price spreads against NIFTY 50
-            oscillate around a stable equilibrium mean, or whether they wander non-stationarily.
-          </p>
-        </div>
+      <section className="simulation-stage-header simulation-z-heading">
+        <h1>Do gaps shrink over time?<span>.</span></h1>
         <div className="simulation-status">
           <i className={`status-light ${loading ? "status-light--running" : error ? "status-light--error" : "status-light--complete"}`} />
-          {loading ? "Loading market data..." : error ? "Data unavailable" : `${stocks.length} assets verified`}
+          {loading ? "Loading market data..." : error ? "Data unavailable" : `${stocks.length} assets · live closes to ${stocks[0]?.points.at(-1)?.date ?? "latest"}`}
         </div>
       </section>
 
       {error ? (
         <section className="simulation-error" role="alert">
-          <strong>Could not verify historical mean reversion</strong>
+          <strong>Could not check past gaps</strong>
           <span>{error}</span>
         </section>
       ) : (
@@ -239,11 +231,11 @@ export default function HistoricalMeanReversionPage() {
             <header className="simulation-chart-hud">
               <div>
                 <strong style={{ fontSize: "1.1rem", fontFamily: "var(--font-geist-mono), monospace" }}>
-                  {activeTab === "ALL" ? "Comparative Multi-Asset Reversion Analysis" : `${activeSeries?.stock.name} (${activeSeries?.stock.symbol})`}
+                  {activeTab === "ALL" ? "How stock gaps changed" : `${activeSeries?.stock.name} (${activeSeries?.stock.symbol})`}
                 </strong>
                 <span style={{ display: "block", fontSize: "0.68rem", color: "var(--market-muted)", marginTop: "2px" }}>
                   {activeTab === "ALL"
-                    ? "Standardized daily log spreads (z-scores) relative to NIFTY 50"
+                    ? "Stock gaps compared with NIFTY 50"
                     : `Spread mean = ${activeSeries?.mean.toFixed(4)} \u00B7 \u03C3 = ${activeSeries?.stdDev.toFixed(4)} \u00B7 ${activeSeries?.stock.points.length} trading days`}
                 </span>
               </div>
@@ -252,15 +244,15 @@ export default function HistoricalMeanReversionPage() {
               <div className="simulation-chart-legend">
                 <span className="simulation-legend-item">
                   <span className="simulation-legend-swatch" style={{ background: "rgba(216, 240, 77, 0.4)", borderColor: "#9eb329" }} />
-                  &plusmn;1&sigma; Equilibrium Channel
+                  Usual range
                 </span>
                 <span className="simulation-legend-item">
                   <span style={{ width: "16px", height: "0", borderTop: "2px dashed #c92a2a" }} />
-                  &plusmn;2&sigma; Reversion Boundary
+                  Unusual range
                 </span>
                 <span className="simulation-legend-item">
                   <span style={{ width: "16px", height: "0", borderTop: "2px solid var(--market-ink)" }} />
-                  0.0 Equilibrium Baseline
+                  Normal (0)
                 </span>
               </div>
             </header>
@@ -418,30 +410,16 @@ export default function HistoricalMeanReversionPage() {
                 <>
                   <div>
                     <span>STOCK CLOSE: </span>
-                    <b>\u20B9{inspectedPoint.price.toFixed(2)}</b>
-                  </div>
-                  <div>
-                    <span>NIFTY 50: </span>
-                    <b>{inspectedPoint.benchmark.toFixed(2)}</b>
+                    <b>₹{inspectedPoint.price.toFixed(2)}</b>
                   </div>
                   <div>
                     <span>LOG SPREAD: </span>
                     <b>{inspectedSpread.toFixed(4)}</b>
                   </div>
                   <div>
-                    <span>STANDARDIZED Z: </span>
+                    <span>Z-SCORE: </span>
                     <b style={{ color: Math.abs(inspectedZ) >= 2 ? "#ff8787" : "var(--market-accent)" }}>
                       {inspectedZ >= 0 ? `+${inspectedZ.toFixed(2)}` : inspectedZ.toFixed(2)}&sigma;
-                    </b>
-                  </div>
-                  <div>
-                    <span>REGIME: </span>
-                    <b>
-                      {Math.abs(inspectedZ) >= 2
-                        ? "EXTREME DEVIATION (POTENTIAL REVERSAL)"
-                        : Math.abs(inspectedZ) >= 1
-                        ? "ELEVATED DRIFT"
-                        : "IN EQUILIBRIUM CHANNEL"}
                     </b>
                   </div>
                 </>
@@ -452,145 +430,51 @@ export default function HistoricalMeanReversionPage() {
             {activeSeries && (
               <div className="simulation-kpi-grid">
                 <article className="simulation-kpi-card">
-                  <span className="simulation-kpi-card__label">Lag-1 Autoregression (&phi;)</span>
+                  <span className="simulation-kpi-card__label">Gap left after one day (&phi;)</span>
                   <span className="simulation-kpi-card__value">{activeSeries.phi.toFixed(3)}</span>
-                  <p className="simulation-kpi-card__desc">
-                    {activeSeries.phi < 1
-                      ? `\u03C6 < 1.0 confirms statistical stationary reversion. Spread contracts toward mean at ${(1 - activeSeries.phi).toFixed(3)}/day.`
-                      : "Unit root detected; spread behaves as a non-stationary random walk."}
-                  </p>
                 </article>
 
                 <article className="simulation-kpi-card">
-                  <span className="simulation-kpi-card__label">Reversion Half-Life (t&frac12;)</span>
+                  <span className="simulation-kpi-card__label">Days to shrink by half</span>
                   <span className="simulation-kpi-card__value">
                     {Number.isFinite(activeSeries.halfLife) ? `${activeSeries.halfLife.toFixed(1)} d` : "Not bounded"}
                   </span>
-                  <p className="simulation-kpi-card__desc">
-                    Estimated trading days required for any spread shock to decay halfway back to its equilibrium baseline.
-                  </p>
                 </article>
 
                 <article className="simulation-kpi-card">
-                  <span className="simulation-kpi-card__label">Equilibrium Zero-Crossings</span>
+                  <span className="simulation-kpi-card__label">Times gap crossed zero</span>
                   <span className="simulation-kpi-card__value">{activeSeries.zeroCrossings} times</span>
-                  <p className="simulation-kpi-card__desc">
-                    Historical returns through the zero mean line across the 1-year sample ({((activeSeries.zeroCrossings / activeSeries.zScores.length) * 100).toFixed(1)}% oscillation frequency).
-                  </p>
                 </article>
 
                 <article className="simulation-kpi-card">
-                  <span className="simulation-kpi-card__label">Stationary Test Verdict</span>
+                  <span className="simulation-kpi-card__label">How often it shrinks</span>
                   <span
                     className="simulation-kpi-card__value"
                     style={{
-                      fontSize: "clamp(0.95rem, 1.4vw, 1.2rem)",
-                      color: activeSeries.status === "strong" ? "var(--market-positive)" : "var(--market-ink)",
+                      fontSize: "clamp(0.85rem, 1.4vw, 1.15rem)",
+                      color:
+                        activeSeries.status === "strong"
+                          ? "var(--market-positive)"
+                          : activeSeries.status === "weak"
+                            ? "var(--market-muted)"
+                            : "var(--market-ink)",
                     }}
                   >
-                    {activeSeries.status === "strong" ? "HIGH REVERSION" : "MODERATE REVERSION"}
+                    {activeSeries.status === "strong"
+                      ? "OFTEN"
+                      : activeSeries.status === "moderate"
+                        ? "SOMETIMES"
+                        : "RARELY"}
                   </span>
-                  <p className="simulation-kpi-card__desc">{activeSeries.verdict}</p>
                 </article>
               </div>
             )}
           </section>
 
-          {/* Comparative Table of All 6 Stocks */}
-          <section className="simulation-table-wrap">
-            <table className="simulation-table">
-              <thead>
-                <tr>
-                  <th>Asset</th>
-                  <th>Symbol</th>
-                  <th>Current Z-Score</th>
-                  <th>Lag-1 &phi;</th>
-                  <th>Half-Life</th>
-                  <th>Mean Crossings</th>
-                  <th>Reversion Verdict</th>
-                  <th>Signal Regime</th>
-                </tr>
-              </thead>
-              <tbody>
-                {analyzed.map((item, idx) => {
-                  const z = item.latestZ;
-                  return (
-                    <tr
-                      key={item.stock.symbol}
-                      style={{
-                        background: activeTab === item.stock.symbol ? "#f3f7d8" : undefined,
-                        cursor: "pointer",
-                      }}
-                      onClick={() => setActiveTab(item.stock.symbol)}
-                    >
-                      <td>
-                        <strong style={{ color: COMPANY_COLORS[idx % COMPANY_COLORS.length] }}>
-                          {item.stock.name}
-                        </strong>
-                      </td>
-                      <td>{item.stock.symbol}</td>
-                      <td>
-                        <span
-                          style={{
-                            fontWeight: "700",
-                            color: Math.abs(z) >= 2 ? "var(--market-negative)" : Math.abs(z) >= 1 ? "#c28a20" : "var(--market-positive)",
-                          }}
-                        >
-                          {z >= 0 ? `+${z.toFixed(2)}` : z.toFixed(2)}&sigma;
-                        </span>
-                      </td>
-                      <td>{item.phi.toFixed(3)}</td>
-                      <td>{Number.isFinite(item.halfLife) ? `${item.halfLife.toFixed(1)} days` : "\u2014"}</td>
-                      <td>{item.zeroCrossings} times</td>
-                      <td>{item.verdict}</td>
-                      <td>
-                        {Math.abs(z) >= 2 ? (
-                          <span className="z-regime-tag z-regime-tag--extreme">
-                            {z > 0 ? "SELL OVERBOUGHT" : "BUY OVERSOLD"}
-                          </span>
-                        ) : Math.abs(z) >= 1 ? (
-                          <span className="z-regime-tag z-regime-tag--moderate">ELEVATED DRIFT</span>
-                        ) : (
-                          <span className="z-regime-tag z-regime-tag--neutral">IN EQUILIBRIUM</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </section>
-
-          {/* Explanatory callout */}
-          <section className="simulation-z-banner">
-            <div className="simulation-z-banner__formula-box">
-              <span className="simulation-z-banner__eyebrow">THEORY &middot; FIRST PRINCIPLES</span>
-              <div className="simulation-z-banner__equation">
-                <span>z<sub>t</sub></span>
-                <b>=</b>
-                <span>&phi; &middot; z<sub>t&minus;1</sub></span>
-                <b>+</b>
-                <span>&epsilon;<sub>t</sub></span>
-                <span className="z-highlight-tag" style={{ fontSize: "0.85rem" }}>
-                  Mean Reversion holds if |&phi;| &lt; 1
-                </span>
-              </div>
-              <p className="simulation-z-banner__desc">
-                When two economically linked assets drift apart, market arbitrageurs step in to short the outperformer and buy the
-                underperformer. If the spread is cointegrated, the lag coefficient <strong>&phi;</strong> will remain bounded below unity,
-                and deviations will decay back to 0. In the next stage, we formalize this continuous-time reversion using the
-                <strong> Ornstein&ndash;Uhlenbeck stochastic differential equation</strong>.
-              </p>
-            </div>
-          </section>
-
           {/* Bottom Actions */}
           <footer className="simulation-z-footer-bar">
-            <Link className="simulation-back" href="/simulation/continue">
-              &larr; Back to Stage 02: Spread z-scores
-            </Link>
-            <Link className="landing__button simulation-continue__button" href="/simulation/model">
-              Continue to Stage 04: The Ornstein&ndash;Uhlenbeck Model <span aria-hidden="true">&rarr;</span>
+            <Link className="landing__button simulation-continue__button" href="/briefing/ou-model">
+              Next: test possible futures <span aria-hidden="true">&rarr;</span>
             </Link>
           </footer>
         </>

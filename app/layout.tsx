@@ -8,10 +8,10 @@ export const metadata: Metadata = {
   description: "Monteverge market intelligence.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable} h-full antialiased font-sans`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="m-0 min-h-svh w-full overflow-x-hidden select-none">{children}</body>
     </html>
   );
 }
