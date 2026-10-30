@@ -82,13 +82,12 @@ function StockSimulationContent() {
       {error ? <section className="simulation-error" role="alert"><strong>Could not load this stock</strong><span>{error}</span><Link href="/simulation" className="simulation-retry">Back to stocks</Link></section> : (
         <>
           <section className="simulation-detail-heading">
-            <div><span className="simulation-eyebrow">LIVE FORMULA / {stock?.symbol ?? symbol}</span><h1>{stock?.name ?? "Loading stock"}<span>.</span></h1></div>
+            <div><span className="simulation-eyebrow">HOW WE FIND THE GAP / {stock?.symbol ?? symbol}</span><h1>{stock?.name ?? "Loading stock"}<span>.</span></h1></div>
             <div className="simulation-status"><i className={`status-light status-light--${status}`} />{status === "loading" ? "Loading data" : status === "running" ? `Calculating ${percent}%` : "Calculation complete"}</div>
           </section>
 
           <section className="simulation-detail-formula" aria-label="Spread equation">
             <div className="simulation-detail-formula__equation"><span>S<sub>i,t</sub></span><b>=</b><span>ln(P<sub>i,t</sub>)</span><b>&minus;</b><span>I<sub>t</sub></span></div>
-            <p><strong>I<sub>t</sub> = ln(NIFTY 50 close<sub>t</sub>)</strong> &middot; Each point uses same-date closes.</p>
           </section>
 
           <section className="simulation-detail-live">
@@ -101,15 +100,15 @@ function StockSimulationContent() {
             <div className="simulation-detail-trace" aria-live="polite">
               <div><span>STOCK CLOSE</span><strong>{activePoint ? `ln(${activePoint.price.toFixed(2)})` : "Waiting"}</strong><small>{activePoint?.date ?? ""}</small></div>
               <b>&minus;</b>
-              <div><span>NIFTY 50 CLOSE</span><strong>{activePoint ? `ln(${activePoint.benchmark.toFixed(2)})` : "Waiting"}</strong><small>{activePoint ? fixed(activePoint.logBenchmark) : "Matched date"}</small></div>
+            <div><span>NIFTY 50</span><strong>{activePoint ? `ln(${activePoint.benchmark.toFixed(2)})` : "Waiting"}</strong><small>{activePoint ? fixed(activePoint.logBenchmark) : "Same date"}</small></div>
               <b>=</b>
-              <div className="simulation-detail-trace__answer"><span>LOG SPREAD</span><strong>{activePoint ? fixed(activePoint.spread) : "Waiting"}</strong><small>{activePoint ? `${fixed(activePoint.logPrice)} &minus; ${fixed(activePoint.logBenchmark)}` : "Computed per date"}</small></div>
+              <div className="simulation-detail-trace__answer"><span>GAP</span><strong>{activePoint ? fixed(activePoint.spread) : "Waiting"}</strong><small>{activePoint ? `${fixed(activePoint.logPrice)} \u2212 ${fixed(activePoint.logBenchmark)}` : "Found for each date"}</small></div>
             </div>
 
             <div className="simulation-detail-chart">
               <SpreadChart series={series} activeDate={activePoint?.date} />
             </div>
-            <footer className="simulation-detail-stats"><span>Latest spread <b>{series?.points.length ? fixed(series.latest) : "—"}</b></span><span>Mean spread <b>{series?.points.length ? fixed(series.mean) : "—"}</b></span><span>{stock?.points.length ?? 0} matched dates</span></footer>
+            <footer className="simulation-detail-stats"><span>Latest gap <b>{series?.points.length ? fixed(series.latest) : "—"}</b></span><span>Average gap <b>{series?.points.length ? fixed(series.mean) : "—"}</b></span><span>{stock?.points.length ?? 0} days compared</span></footer>
           </section>
         </>
       )}
